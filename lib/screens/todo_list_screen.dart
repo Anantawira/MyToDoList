@@ -8,23 +8,24 @@ class TodoListScreen extends StatefulWidget {
 class _TodoListScreenState extends State<TodoListScreen> {
   Widget buildTask(index) {
     return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 25.0),
-        child: Column(
-          children: <Widget>[
-            ListTile(
-              title: Text('Task Title'),
-              subtitle: Text('5 April 2020 - High'),
-              trailing: Checkbox(
-                onChanged: (value) {
-                  print(value);
-                },
-                activeColor: Theme.of(context).primaryColor,
-                value: true,
-              ),
+      padding: EdgeInsets.symmetric(horizontal: 25.0),
+      child: Column(
+        children: <Widget>[
+          ListTile(
+            title: Text('Task Title'),
+            subtitle: Text('5 April 2020 - High'),
+            trailing: Checkbox(
+              onChanged: (value) {
+                print(value);
+              },
+              activeColor: Theme.of(context).primaryColor,
+              value: true,
             ),
-            Divider(),
-          ],
-        ));
+          ),
+          Divider(),
+        ],
+      ),
+    );
   }
 
   @override
