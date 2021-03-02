@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_list/helpers/database_helper.dart';
+import 'package:flutter_todo_list/models/task_model.dart';
 import 'package:intl/intl.dart';
 
 class AddTaskScreen extends StatefulWidget {
+  final Function updateTaskList;
+  final Task task;
+
+  AddTaskScreen({this.updateTaskList, this.task});
+
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
 }
@@ -19,6 +26,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   void initState() {
     super.initState();
+
+    if (widget.task != null) {
+      _title = widget.task.title;
+      _date = widget.task.date;
+      _priority = widget.task.priority;
+    }
+
     _dateController.text = _dateFormatter.format(_date);
   }
 
@@ -43,15 +57,28 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
+  _delete() {
+    DatabaseHelper.instance.deleteTask(widget.task.id);
+    widget.updateTaskList();
+    Navigator.pop(context);
+  }
+
   _submit() {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       print('$_title, $_date, $_priority');
 
       //insert the task to our user's database
-
-      //update the task
-
+      Task task = Task(title: _title, date: _date, priority: _priority);
+      if (widget.task == null) {
+        task.status = 0;
+        DatabaseHelper.instance.insertTask(task);
+      } else {
+        task.id = widget.task.id;
+        task.status = widget.task.status;
+        DatabaseHelper.instance.updateTask(task);
+      }
+      widget.updateTaskList();
       Navigator.pop(context);
     }
   }
@@ -77,7 +104,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
                 SizedBox(height: 20.0),
                 Text(
-                  'Add Task',
+                  widget.task == null ? 'Add Task' : 'Update Task',
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 40.0,
@@ -170,7 +197,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         ),
                         child: FlatButton(
                           child: Text(
-                            'Add',
+                            widget.task == null ? 'Add' : 'Update',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20.0,
@@ -179,6 +206,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           onPressed: _submit,
                         ),
                       ),
+                      widget.task != null
+                          ? Container(
+                              margin: EdgeInsets.symmetric(vertical: 20.0),
+                              height: 60.0,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                              child: FlatButton(
+                                child: Text(
+                                  'Delete',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20.0,
+                                  ),
+                                ),
+                                onPressed: _delete,
+                              ),
+                            )
+                          : SizedBox.shrink(),
                     ],
                   ),
                 ),
